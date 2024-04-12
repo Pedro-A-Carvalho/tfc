@@ -26,4 +26,10 @@ export default class TeamController {
     const { status, data } = await this.service.updateMatch(Number(id), matchDetails);
     res.status(status).json(data);
   }
+
+  public async createMatch(req: Request, res: Response): Promise<void> {
+    const matchDetails = req.body;
+    const { status, data } = await this.service.createMatch(matchDetails);
+    res.status(status).json(data);
+  }
 }

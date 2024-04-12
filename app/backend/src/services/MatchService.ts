@@ -1,3 +1,4 @@
+import IMatch from '../Interfaces/IMatch';
 import SequelizeTeam from '../database/models/SequelizeTeam';
 import SequelizeMatch from '../database/models/SequelizeMatch';
 
@@ -50,5 +51,26 @@ export default class MatchService {
     }
     await match.update({ homeTeamGoals, awayTeamGoals });
     return { status: 200, data: { message: 'Updated' } };
+  }
+
+  public async createMatch(matchDetails: IMatch) {
+    const { homeTeamId, awayTeamId, homeTeamGoals, awayTeamGoals } = matchDetails;
+    if (homeTeamId === awayTeamId) {
+      return {
+        status: 422,
+        data: { message: 'It is not possible to create a match with two equal teams' } };
+    }
+    const homeTeam = await SequelizeTeam.findByPk(homeTeamId);
+    const awayTeam = await SequelizeTeam.findByPk(awayTeamId);
+    if (!homeTeam || !awayTeam) {
+      return { status: 404, data: { message: 'There is no team with such id!' } };
+    }
+    const match = await this.model.create({
+      homeTeamId,
+      awayTeamId,
+      homeTeamGoals,
+      awayTeamGoals,
+      inProgress: true });
+    return { status: 201, data: match.dataValues };
   }
 }
