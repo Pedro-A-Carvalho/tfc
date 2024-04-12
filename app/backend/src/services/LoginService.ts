@@ -25,4 +25,9 @@ export default class UserService {
     const token = jwtUtil.create({ id, username });
     return { status: 200, data: { token } };
   }
+
+  public async getRole(userId: number) {
+    const user = await this.model.findByPk(userId);
+    return { status: 200, data: { role: user?.role } };
+  }
 }

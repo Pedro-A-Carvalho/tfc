@@ -12,4 +12,10 @@ export default class TeamController {
     const { status, data } = await this.service.login(userDetails);
     res.status(status).json(data);
   }
+
+  public async getRole(req: Request, res: Response): Promise<void> {
+    const { user } = req.body;
+    const { status, data } = await this.service.getRole(user.id);
+    res.status(status).json(data);
+  }
 }
