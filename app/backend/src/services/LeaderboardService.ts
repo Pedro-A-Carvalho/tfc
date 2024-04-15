@@ -13,6 +13,24 @@ export default class LeaderboardService {
     this.model = SequelizeTeam;
   }
 
+  public async getAllTeams(): Promise<ServiceResponse<ILeaderboardTeamData[]>> {
+    const teams = await this.model.findAll({
+      include: [
+        { model: SequelizeMatch, as: 'homeMatches', where: { inProgress: false } },
+        { model: SequelizeMatch, as: 'awayMatches', where: { inProgress: false } },
+      ],
+    });
+    const tailoredTeams = teams
+      .map((team) => LeaderboardService
+        .getLeaderboardTeamData(team.dataValues as ILeaderboardTeam));
+    const sortedTeams = tailoredTeams
+      .sort(
+        orderByProperty(['totalPoints', 'totalVictories', 'goalsBalance', 'goalsFavor'], false),
+      );
+    return { status: 200,
+      data: sortedTeams };
+  }
+
   public async getAllTeamsHome(): Promise<ServiceResponse<ILeaderboardTeamData[]>> {
     const teams = await this.model.findAll({
       include: [

@@ -7,6 +7,11 @@ export default class LeaderboardController {
     this.service = new LeaderboardService();
   }
 
+  public async getAllTeams(req: Request, res: Response): Promise<void> {
+    const { status, data } = await this.service.getAllTeams();
+    res.status(status).json(data);
+  }
+
   public async getAllTeamsHome(req: Request, res: Response): Promise<void> {
     const { status, data } = await this.service.getAllTeamsHome();
     res.status(status).json(data);
