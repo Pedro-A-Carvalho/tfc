@@ -1,6 +1,8 @@
 import IMatch from '../Interfaces/IMatch';
 import SequelizeTeam from '../database/models/SequelizeTeam';
 import SequelizeMatch from '../database/models/SequelizeMatch';
+import IMatchResults from '../Interfaces/IMatchResults';
+import { ServiceResponse, SimpleServiceResponse } from '../types/ServiceResponse';
 
 type Query = {
   inProgress?: string;
@@ -18,7 +20,7 @@ export default class MatchService {
     this.model = SequelizeMatch;
   }
 
-  public async getAllMatches(query: Query) {
+  public async getAllMatches(query: Query): Promise<ServiceResponse<IMatch[]>> {
     let teams = await this.model.findAll({
       include: [
         { model: SequelizeTeam, as: 'homeTeam', attributes: ['teamName'] },
@@ -32,7 +34,7 @@ export default class MatchService {
     return { status: 200, data: teams.map((team) => team.dataValues) };
   }
 
-  public async finishMatch(id: number) {
+  public async finishMatch(id: number): Promise<SimpleServiceResponse> {
     const match = await this.model.findByPk(id);
     if (!match) return { status: 404, data: { message: 'Match not found' } };
     if (!match.dataValues.inProgress) {
@@ -42,7 +44,7 @@ export default class MatchService {
     return { status: 200, data: { message: 'Finished' } };
   }
 
-  public async updateMatch(id: number, matchDetails: MatchDetails) {
+  public async updateMatch(id: number, matchDetails: MatchDetails): Promise<SimpleServiceResponse> {
     const { homeTeamGoals, awayTeamGoals } = matchDetails;
     const match = await this.model.findByPk(id);
     if (!match) return { status: 404, data: { message: 'Match not found' } };
@@ -53,7 +55,7 @@ export default class MatchService {
     return { status: 200, data: { message: 'Updated' } };
   }
 
-  public async createMatch(matchDetails: IMatch) {
+  public async createMatch(matchDetails: IMatch): Promise<ServiceResponse<IMatch>> {
     const { homeTeamId, awayTeamId, homeTeamGoals, awayTeamGoals } = matchDetails;
     if (homeTeamId === awayTeamId) {
       return {
@@ -72,5 +74,21 @@ export default class MatchService {
       awayTeamGoals,
       inProgress: true });
     return { status: 201, data: match.dataValues };
+  }
+
+  public static getMatchData(matches: IMatch[]):IMatchResults {
+    let goalsFavor = 0; let goalsOwn = 0; let totalVictories = 0; let totalDraws = 0;
+    let totalLosses = 0;
+    matches.forEach((match) => {
+      goalsFavor += match.homeTeamGoals;
+      goalsOwn += match.awayTeamGoals;
+      if (match.homeTeamGoals > match.awayTeamGoals) totalVictories += 1;
+      else if (match.homeTeamGoals === match.awayTeamGoals) totalDraws += 1;
+      else totalLosses += 1;
+    });
+
+    return {
+      totalGames: matches.length, goalsFavor, goalsOwn, totalVictories, totalDraws, totalLosses,
+    };
   }
 }

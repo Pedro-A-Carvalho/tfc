@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcryptjs';
+import { SimpleServiceResponse } from '../types/ServiceResponse';
 import jwtUtil from '../utils/jwt.util';
 import { LoginData } from '../types/LoginData';
 import SequelizeUser from '../database/models/SequelizeUser';
@@ -11,7 +12,7 @@ export default class UserService {
     this.model = SequelizeUser;
   }
 
-  public async login(data: LoginData) {
+  public async login(data: LoginData): Promise<SimpleServiceResponse> {
     if (!data.email || !data.password) {
       return { status: 400, data: { message: 'All fields must be filled' } };
     }
@@ -26,8 +27,8 @@ export default class UserService {
     return { status: 200, data: { token } };
   }
 
-  public async getRole(userId: number) {
+  public async getRole(userId: number): Promise<SimpleServiceResponse> {
     const user = await this.model.findByPk(userId);
-    return { status: 200, data: { role: user?.role } };
+    return { status: 200, data: { role: user?.role || '' } };
   }
 }

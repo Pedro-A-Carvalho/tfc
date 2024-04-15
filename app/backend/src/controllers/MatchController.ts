@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import MatchService from '../services/MatchService';
 
-export default class TeamController {
+export default class MatchController {
   private service: MatchService;
   constructor() {
     this.service = new MatchService();

@@ -10,7 +10,7 @@ type SuccessResponse<T> = {
 
 export type SimpleServiceResponse = {
   status: 200 | 201;
-  data: { message: string };
+  data: { [key:string]: string };
 } | ErrorResponse;
 
 export type LoginResponse = {
