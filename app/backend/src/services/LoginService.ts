@@ -5,7 +5,7 @@ import { LoginData } from '../types/LoginData';
 import SequelizeUser from '../database/models/SequelizeUser';
 import validateLogin from './validations/validateLogin';
 
-export default class UserService {
+export default class LoginService {
   private model: typeof SequelizeUser;
 
   constructor() {
